@@ -4,8 +4,15 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdmirror.com/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- jQuery library -->
+    <script src="https://cdnjs.loli.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdmirror.com/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
     <link rel="stylesheet" type="text/css" href="static/mirror.css" media="screen" />
-    <script type="text/javascript" src="static//jquery-1.11.3.min.js"></script>
+    <!-- <script type="text/javascript" src="static//jquery-1.11.3.min.js"></script> -->
     <script type="text/javascript" src="static/mirror.js"></script>
     <script type="text/javascript" src="static/main.js"></script>
     <title>Quick Mirror</title>
@@ -15,66 +22,47 @@
 </head>
 
 <body>
-    <div class="main">
+    <main class="container mt-4">
+        <h1 class="text-center mb-4">Quick Mirror</h1>
 
-
-        <h1>Quick Mirror</h1>
-
-        <table id="distro-table" cellpadding="0" cellspacing="0">
-            <colgroup>
-                <col width="12%" />
-                <col width="15%" />
-                <col width="35%" />
-                <col width="10%" />
-                <col width="8%" />
-                <col width="20%" />
-            </colgroup>
-            <thead>
+        <table class="table table-striped table-hover" id="distro-table">
+            <thead class="table-dark">
                 <tr>
-                    <th>Name</th>
-                    <th>Last Updated</th>
-                    <th>Source</th>
-                    <th>Status</th>
-                    <th>Size</th>
-                    <th>Help</th>
+                    <th scope="col" style="width: 12%;">Name</th>
+                    <th scope="col" style="width: 15%;">Last Updated</th>
+                    <th scope="col" style="width: 35%;">Source</th>
+                    <th scope="col" style="width: 10%;">Status</th>
+                    <th scope="col" style="width: 8%;">Size</th>
+                    <th scope="col" style="width: 20%;">Help</th>
                 </tr>
             </thead>
-
             <tbody>
-                <!-- <tr class="even">
-            <td><a href="/github-release/">github-release/</a></td>
-            <td class="github-release update-time">N/A</td>
-            <td class="github-release upstream">N/A</td>
-            <td class="github-release sync-status">N/A</td>
-            <td class="github-release mirror-size">N/A</td>
-            <td><a href="#">Coming soon</a></td>
-        </tr>
-        <tr class="odd">
-            <td><a href="/apache/">Apache/</a></td>
-            <td class="apache update-time">N/A</td>
-            <td class="apache upstream">N/A</td>
-            <td class="apache sync-status">N/A</td>
-            <td class="apache mirror-size">N/A</td>
-            <td><a href="#">Coming soon</a></td>
-        </tr> -->
-
             </tbody>
         </table>
-    </div>
-    <div id="footer">
-        <p class="thuhidden">本站由HuanGeTech运行维护。服务器使用<img
-                src="https://mirrors.tuna.tsinghua.edu.cn/static/img/huawei.png"
-                srcset="https://mirrors.tuna.tsinghua.edu.cn/static/img/huawei.png 1x, https://mirrors.tuna.tsinghua.edu.cn/static/img/huawei@2x.png 2x, https://mirrors.tuna.tsinghua.edu.cn/static/img/huawei@3x.png 3x, https://mirrors.tuna.tsinghua.edu.cn/static/img/huawei@4x.png 4x"
-                alt="华为"></p>
-        <ul>
-            <li><a href="https://help.mirrorz.org">使用帮助</a></li>
-            <li><a href="status/">服务器状态</a></li>
-            <li><a href="https://mirrors.cernet.edu.cn/">Mirrorz</a></li>
-            <li class="thuhidden"><a href="https://github.com/muzihuaner/mirrors/issues">提个issues？！</a></li>
-            <li><a href="https://github.com/tuna/tunasync">镜像管理器源码</a></li>
-            <li><a href="https://github.com/muzihuaner/mirrors/tree/new/mirrors">网页源码</a></li>
-        </ul>
-    </div>
+    </main>
+
+    <footer class="bg-light mt-4 py-3 footer">
+        <div class="container">
+            <p class="text-center thuhidden">本镜像站为学生、技术爱好者、工程师、科研人员等开源爱好者提供开源软件镜像服务.</p>
+            <p class="text-center thuhidden">
+                本站由HuanGeTech运行维护。服务器使用
+                <img src="https://mirrors.tuna.tsinghua.edu.cn/static/img/huawei.png"
+                     srcset="https://mirrors.tuna.tsinghua.edu.cn/static/img/huawei.png 1x, 
+                             https://mirrors.tuna.tsinghua.edu.cn/static/img/huawei@2x.png 2x, 
+                             https://mirrors.tuna.tsinghua.edu.cn/static/img/huawei@3x.png 3x, 
+                             https://mirrors.tuna.tsinghua.edu.cn/static/img/huawei@4x.png 4x"
+                     alt="华为" class="img-fluid">
+            </p>
+            <ul class="nav justify-content-center">
+                <li class="nav-item"><a class="nav-link" href="https://help.mirrorz.org">使用帮助</a></li>
+                <li class="nav-item"><a class="nav-link" href="status/">服务器状态</a></li>
+                <li class="nav-item"><a class="nav-link" href="https://mirrors.cernet.edu.cn/">Mirrorz</a></li>
+                <li class="nav-item thuhidden"><a class="nav-link" href="https://github.com/muzihuaner/mirrors/issues">提个issues？！</a></li>
+                <li class="nav-item"><a class="nav-link" href="https://github.com/tuna/tunasync">镜像管理器源码</a></li>
+                <li class="nav-item"><a class="nav-link" href="https://github.com/muzihuaner/mirrors/tree/new/mirrors">网页源码</a></li>
+            </ul>
+        </div>
+    </footer>
 
 </body>
 

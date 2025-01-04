@@ -2,17 +2,24 @@
  * * Copyright (c) 2009, Netease corp.
  * * This work is under Creative Common Attribution 2.5 China Mainland License.
  * */
+html, body {
+    height: 100%;
+    margin: 0;
+}
 body{
     font-family:"Bitstream Vera Sans","Lucida Grande", Verdana, Lucida, sans-serif;
     font-size: .9em;
     margin: 0;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
-.main {
-    margin: 0 auto;
-    width: 1000px;
-    padding: 20px;
-    overflow: hidden;
+ /* 主内容区域占据剩余空间 */
+main {
+    flex: 1;
+}
+/* 页脚样式 */
+.footer {
+    flex-shrink: 0;
 }
 tr.even {
     background:#EEE;
@@ -63,7 +70,7 @@ label {
     padding-bottom: 10px;
 }
 h1, h3 {
-    color: rgb(105, 195, 153);
+    color: #384452;
 }
 .hr {
     border-bottom: dashed #777 1px;
@@ -72,28 +79,15 @@ h1, h3 {
 .hr hr {
     display: none;
 }
-#footer {
-    position: absolute;
-    bottom: 0;
+.footer{
+    clear:both;
+    background: #384452!important;
     text-align: center;
-    clear: both;
-    color: #dee2e6;
+    color: #dee2e6!important;
     width: 100%;
-    padding-top: 60px;
-    padding-bottom: 60px;
-    background: #384452;
 }
-#footer a {
-    color: #ffffff;
-    margin: 0px 10px;
-    font-size: 1rem;
-}
-#footer ul{
-    list-style-type: none;
-}
-#footer li {
-    display: inline-block;  /* 或者使用 inline-flex */
-    margin-right: 1px;  /* 设置列表项之间的间距 */
+.footer a {
+    color: #dee2e6!important;
 }
 pre {
     font-family: monospace;
