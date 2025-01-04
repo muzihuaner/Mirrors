@@ -1,0 +1,4 @@
+imirrors.quickso.cn {
+    root * /usr/share/caddy
+    file_server browse
+}
