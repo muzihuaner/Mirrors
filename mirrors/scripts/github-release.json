@@ -2,11 +2,10 @@
     "topjohnwu/Magisk",
     "ventoy/Ventoy",
     "rustdesk/rustdesk",
-    {
-        "repo": "M2Team/NanaZip",
-        "versions": 3,
-        "pre_release": true
-    },
     "LANDrop/LANDrop",
-    "fatedier/frp"
+    "fatedier/frp",
+    "localsend/localsend",
+    "git-for-windows/git",
+    "obsproject/obs-studio",
+    "pbatard/rufus"
 ]
