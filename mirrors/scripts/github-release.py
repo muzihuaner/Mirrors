@@ -143,7 +143,8 @@ def main():
                 task_queue.put((url, dst_file, working_dir, updated, -1))
 
         for asset in release['assets']:
-            url = asset['browser_download_url']
+            # https://gh-proxy.com/ 为Github下载加速代理网站，生效可替换
+            url = 'https://gh-proxy.com/' + asset['browser_download_url']
             updated = datetime.strptime(
                 asset['updated_at'], '%Y-%m-%dT%H:%M:%SZ').timestamp()
             dst_file = release_dir / ensure_safe_name(asset['name'])
