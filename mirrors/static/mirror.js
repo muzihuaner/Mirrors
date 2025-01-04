@@ -1,5 +1,5 @@
 var mirror = {
-    interval:   60000,
+    interval: 60000,
 }
 
 var isGoodBrower = $.support.leadingWhitespace;
@@ -145,10 +145,24 @@ statusMap.set("disabled", "Disabled");
 
 mirror.update = function update() {
     //取出tunasync同步工具的数据，进行json解析并更新首页的表格
-    $.get("jobs.json", function(data) {
-        for (var i = 0, n = data.length; i < n; i++){
+    $.get("jobs.json", function (data) {
+        for (var i = 0, n = data.length; i < n; i++) {
             var job = eval(data[i]);
-            console.log(job);
+            // 创建新行（tr）元素
+            var tr = $("<tr>").addClass(i % 2 === 0 ? "even" : "odd");  // 根据索引设置偶数或奇数类
+            // 创建各个单元格（td）
+            var td1 = $("<td>").html(`<a href="/${job.name}/">${job.name}/</a>`);
+            var td2 = $("<td>").addClass(`${job.name} update-time`).text(job["update-time"]);
+            var td3 = $("<td>").addClass(`${job.name} upstream`).text(job["upstream"]);
+            var td4 = $("<td>").addClass(`${job.name} sync-status`).text(job["sync-status"]);
+            var td5 = $("<td>").addClass(`${job.name} mirror-size`).text(job["mirror-size"]);
+            var td6 = $("<td>").html('<a href="#">Coming soon</a>');
+
+            // 将单元格添加到新行（tr）
+            tr.append(td1, td2, td3, td4, td5, td6);
+
+            $("#distro-table tbody").append(tr);
+            // 根据job.name更新对应的单元格
             var updateClass = "." + job.name + ".update-time";
             var upstreamClass = "." + job.name + ".upstream";
             var statusClass = "." + job.name + ".sync-status";
@@ -162,13 +176,13 @@ mirror.update = function update() {
 }
 
 
-mirror.init = function (){
+mirror.init = function () {
     this.update();
     // 定时刷新，同时需使用定时脚本：
     //wget -c http://localhost:14242/jobs -O jobs.json -a /mirrors/log/plog/wget.log
     // rm -f jobs.json?
-    if (isGoodBrower){
-        setInterval(function() {
+    if (isGoodBrower) {
+        setInterval(function () {
             this.update();
         }.bind(this), this.interval);
     }
