@@ -1,213 +1,147 @@
-要使用 **RRDTool** 生成 CPU、内存和网络使用情况的图表，并将这些图表保存到 `status` 文件夹中，首先你需要收集相应的性能数据并存储在 `.rrd` 文件中。然后，你可以使用 `rrdtool graph` 命令生成图表并将它们保存为图片。
+要使用 RRDTool 生成 CPU、内存和网络的监控图片，并将其保存到 `/home/www/mirrors/status` 文件夹中，你需要完成以下几个步骤：
 
-以下是详细步骤：
+### 1. 安装 RRDTool
 
-### 1. **安装 RRDTool**
+首先，确保你已经安装了 RRDTool。如果没有安装，可以使用以下命令进行安装：
 
-如果你还没有安装 `RRDTool`，请按照以下步骤进行安装。
+- **Debian/Ubuntu**:
 
-#### Debian/Ubuntu 系统：
+  ```
+  sudo apt-get install rrdtool
+  ```
 
-```
-sudo apt update
-sudo apt install rrdtool
-```
+- **CentOS/RHEL**:
 
-#### CentOS/RHEL 系统：
+  ```
+  sudo yum install rrdtool
+  ```
 
-```
-sudo yum install rrdtool
-```
+### 2. 创建 RRD 数据库
 
-### 2. **收集和存储数据**
+你需要为 CPU、内存和网络分别创建 RRD 数据库。以下是一个示例：
 
-`RRDTool` 需要数据来生成图表。你可以手动收集系统性能数据，并将其存储在 `.rrd` 文件中，或者通过脚本定期收集数据并更新 `.rrd` 文件。
-
-#### 创建一个 `.rrd` 数据库文件
-
-首先，我们需要为 CPU、内存和网络使用情况创建 `.rrd` 文件。例如，我们将创建一个用于监控 **CPU 使用率** 的 `.rrd` 文件。
+#### CPU 使用率
 
 ```
-rrdtool create cpu_usage.rrd \
-  --step 60 \
-  DS:cpu:GAUGE:120:0:100 \
-  RRA:AVERAGE:0.5:1:10080
+rrdtool create /home/www/mirrors/status/cpu.rrd \
+--start N \
+--step 60 \
+DS:cpu:GAUGE:120:0:100 \
+RRA:AVERAGE:0.5:1:1440 \
+RRA:AVERAGE:0.5:5:2016 \
+RRA:AVERAGE:0.5:15:1488
 ```
 
-- `--step 60`: 数据的收集频率是 60 秒。
-- `DS:cpu:GAUGE:120:0:100`: 创建一个名为 `cpu` 的数据源，数据类型为 `GAUGE`，即在 120 秒内记录的数据值范围是 0 到 100。
-- `RRA:AVERAGE:0.5:1:10080`: 数据的存储方式，`AVERAGE` 表示每个数据点的平均值，存储 10080 个数据点（即 1 周的数据）。
-
-#### 创建内存使用 `.rrd` 文件
+#### 内存使用率
 
 ```
-rrdtool create memory_usage.rrd \
-  --step 60 \
-  DS:mem:GAUGE:120:0:100 \
-  RRA:AVERAGE:0.5:1:10080
+rrdtool create /home/www/mirrors/status/memory.rrd \
+--start N \
+--step 60 \
+DS:memory:GAUGE:120:0:U \
+RRA:AVERAGE:0.5:1:1440 \
+RRA:AVERAGE:0.5:5:2016 \
+RRA:AVERAGE:0.5:15:1488
 ```
 
-#### 创建网络流量 `.rrd` 文件
+#### 网络流量
 
 ```
-rrdtool create net_usage.rrd \
-  --step 60 \
-  DS:in:COUNTER:120:0:U \
-  DS:out:COUNTER:120:0:U \
-  RRA:AVERAGE:0.5:1:10080
+rrdtool create /home/www/mirrors/status/network.rrd \
+--start N \
+--step 60 \
+DS:in:COUNTER:120:0:U \
+DS:out:COUNTER:120:0:U \
+RRA:AVERAGE:0.5:1:1440 \
+RRA:AVERAGE:0.5:5:2016 \
+RRA:AVERAGE:0.5:15:1488
 ```
 
-- `DS:in:COUNTER:120:0:U`：表示 `in`（输入）数据为 `COUNTER` 类型。
-- `DS:out:COUNTER:120:0:U`：表示 `out`（输出）数据为 `COUNTER` 类型。
+### 3. 更新 RRD 数据库
 
-### 3. **收集数据并更新 `.rrd` 文件**
+你需要定期更新这些 RRD 数据库。可以使用脚本来自动化这个过程。
 
-你需要创建脚本来定期收集系统的 CPU、内存和网络使用数据，并更新 `.rrd` 文件。例如，可以使用 `top` 或 `free` 命令来获取 CPU 和内存数据，使用 `cat /sys/class/net/eth0/statistics/rx_bytes` 和 `tx_bytes` 来获取网络流量数据。
+#### 示例脚本
 
-以下是一个简单的脚本，用于收集这些数据并更新 `.rrd` 文件：
-
-#### `update_rrd.sh` 脚本示例：
+保存为update_rrd.sh
 
 ```
 #!/bin/bash
 
-# 获取 CPU 使用率（百分比）
-cpu_usage=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}')
+# 获取 CPU 使用率
+CPU_USAGE=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}')
 
+# 获取内存使用率
+MEMORY_USAGE=$(free | grep Mem | awk '{print $3/$2 * 100.0}')
 
-# 获取内存使用情况
-mem_usage=$(free -m | awk '/Mem/ {print $3/$2 * 100.0}')
-
-# 获取网络流量（自动选择网络接口）
-rx_bytes=$(cat /sys/class/net/eth0/statistics/rx_bytes)
-tx_bytes=$(cat /sys/class/net/eth0/statistics/tx_bytes)
+# 获取网络流量
+NETWORK_IN=$(cat /sys/class/net/eth0/statistics/rx_bytes)
+NETWORK_OUT=$(cat /sys/class/net/eth0/statistics/tx_bytes)
 
 # 更新 RRD 数据库
-rrdtool update cpu_usage.rrd N:$cpu_usage || echo "Error updating cpu_usage.rrd at $(date)" >> /var/log/rrdtool_error.log
-rrdtool update memory_usage.rrd N:$mem_usage || echo "Error updating memory_usage.rrd at $(date)" >> /var/log/rrdtool_error.log
-rrdtool update net_usage.rrd N:$rx_bytes:$tx_bytes || echo "Error updating net_usage.rrd at $(date)" >> /var/log/rrdtool_error.log
+rrdtool update /home/www/mirrors/status/cpu.rrd N:$CPU_USAGE
+rrdtool update /home/www/mirrors/status/memory.rrd N:$MEMORY_USAGE
+rrdtool update /home/www/mirrors/status/network.rrd N:$NETWORK_IN:$NETWORK_OUT
+
+# 生成图片
+rrdtool graph /home/www/mirrors/status/cpu.png \
+--start -1h \
+--title "CPU Usage" \
+--vertical-label "Percentage" \
+DEF:cpu=/home/www/mirrors/status/cpu.rrd:cpu:AVERAGE \
+LINE1:cpu#FF0000:"CPU Usage"
+
+rrdtool graph /home/www/mirrors/status/memory.png \
+--start -1h \
+--title "Memory Usage" \
+--vertical-label "Percentage" \
+DEF:memory=/home/www/mirrors/status/memory.rrd:memory:AVERAGE \
+LINE1:memory#00FF00:"Memory Usage"
+
+rrdtool graph /home/www/mirrors/status/network.png \
+--start -1h \
+--title "Network Traffic" \
+--vertical-label "Bytes" \
+DEF:in=/home/www/mirrors/status/network.rrd:in:AVERAGE \
+DEF:out=/home/www/mirrors/status/network.rrd:out:AVERAGE \
+LINE1:in#0000FF:"Download" \
+LINE2:out#FF00FF:"Upload"
 ```
 
-- 每次执行 `update_rrd.sh` 脚本，它会将当前的 CPU、内存和网络流量数据更新到相应的 `.rrd` 文件。
-
-你可以将此脚本添加到 `cron` 作业中，定期运行它：
+### 定时任务
 
 ```
 crontab -e
 ```
-
-然后添加以下行以每分钟更新一次数据：
 
 ```
 * * * * * /home/www/mirrors/status/update_rrd.sh
 ```
 
-### 4. **生成图像文件并保存到 `status` 文件夹**
+### 访问图片
 
-一旦数据在 `.rrd` 文件中更新，你就可以使用 `rrdtool graph` 命令生成图像并将其保存到 `status` 文件夹。
+生成的图片将保存在 `/home/www/mirrors/status` 文件夹中。你可以通过 Web 服务器访问这些图片，例如：
 
-#### 生成 CPU 使用率图像：
-
-```
-rrdtool graph ~/status/cpu_usage.png \
-  --start -3600 \
-  --end now \
-  --title "CPU Usage" \
-  --vertical-label "CPU (%)" \
-  DEF:cpu=cpu_usage.rrd:cpu:AVERAGE \
-  LINE1:cpu#FF0000:"CPU Usage"
-```
-
-#### 生成内存使用率图像：
+复制
 
 ```
-rrdtool graph ~/status/memory_usage.png \
-  --start -3600 \
-  --end now \
-  --title "Memory Usage" \
-  --vertical-label "Memory (%)" \
-  DEF:mem=memory_usage.rrd:mem:AVERAGE \
-  LINE1:mem#00FF00:"Memory Usage"
+http://your-server/status/cpu.png
+http://your-server/status/memory.png
+http://your-server/status/network.png
 ```
 
-#### 生成网络流量图像：
+确保你的 Web 服务器配置正确，能够访问 `/home/www/mirrors/status` 文件夹。
+
+### 定期清理旧数据
+
+你可以设置一个定期任务来清理旧的 RRD 数据，以防止数据库文件过大。
 
 ```
-rrdtool graph ~/status/net_usage.png \
-  --start -3600 \
-  --end now \
-  --title "Network Usage" \
-  --vertical-label "Bytes" \
-  DEF:in=net_usage.rrd:in:AVERAGE \
-  DEF:out=net_usage.rrd:out:AVERAGE \
-  LINE1:in#0000FF:"Incoming Traffic" \
-  LINE1:out#FF6600:"Outgoing Traffic"
+find /home/www/mirrors/status -name "*.rrd" -mtime +30 -exec rm {} \;
 ```
 
-### 5. **定期生成图像**
-
-你可以将这些命令添加到一个新的脚本中，并通过 `cron` 定期生成图像。例如，创建一个 `generate_graphs.sh` 脚本：
-
-```
-#!/bin/bash
-
-# 生成 CPU 使用率图像
-rrdtool graph /home/www/mirrors/status/cpu_usage.png \
-  --start -3600 \
-  --end now \
-  --title "CPU Usage" \
-  --vertical-label "CPU (%)" \
-  DEF:cpu=cpu_usage.rrd:cpu:AVERAGE \
-  LINE1:cpu#FF0000:"CPU Usage"
-
-# 生成内存使用率图像
-rrdtool graph /home/www/mirrors/status/memory_usage.png \
-  --start -3600 \
-  --end now \
-  --title "Memory Usage" \
-  --vertical-label "Memory (%)" \
-  DEF:mem=memory_usage.rrd:mem:AVERAGE \
-  LINE1:mem#00FF00:"Memory Usage"
-
-# 生成网络流量图像
-rrdtool graph /home/www/mirrors/status/net_usage.png \
-  --start -3600 \
-  --end now \
-  --title "Network Usage" \
-  --vertical-label "Bytes" \
-  DEF:in=net_usage.rrd:in:AVERAGE \
-  DEF:out=net_usage.rrd:out:AVERAGE \
-  LINE1:in#0000FF:"Incoming Traffic" \
-  LINE1:out#FF6600:"Outgoing Traffic"
-```
-
-然后将此脚本添加到 `cron` 中，以定期生成图像。例如，每小时生成一次图像：
-
-```
-crontab -e
-```
-
-添加以下行：
-
-```
-0 * * * * /home/www/mirrors/status/generate_graphs.sh
-```
-
-### 6. **查看生成的图像**
-
-在 `status` 文件夹中，你将看到生成的图像文件，例如：
-
-- `cpu_usage.png`
-- `memory_usage.png`
-- `net_usage.png`
-
-这些图像可以通过浏览器或图像查看器查看，并可以定期更新。
-
-------
+这个命令会删除 30 天前的 RRD 文件。
 
 ### 总结
 
-- 使用 `RRDTool` 创建 `.rrd` 数据库文件来收集和存储 CPU、内存和网络流量数据。
-- 使用脚本定期更新 `.rrd` 文件。
-- 使用 `rrdtool graph` 命令生成图像并将其保存到 `status` 文件夹中。
-- 可通过 `cron` 定期执行这些任务，确保数据和图像的自动更新。
+通过以上步骤，你可以使用 RRDTool 监控 CPU、内存和网络的使用情况，并生成相应的图片。这些图片可以用于实时监控系统的状态。
