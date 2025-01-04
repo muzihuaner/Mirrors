@@ -144,10 +144,12 @@ statusMap.set("disabled", "Disabled");
 
 
 mirror.update = function update() {
+    // 先清空表格内容
+    $("#distro-table tbody").empty();
     //取出tunasync同步工具的数据，进行json解析并更新首页的表格
     $.get("jobs.json", function (data) {
-        for (var i = 0, n = data.length; i < n; i++) {
-            var job = eval(data[i]);
+        data.forEach(function (job, i) {
+            // console.log(job);
             // 创建新行（tr）元素
             var tr = $("<tr>").addClass(i % 2 === 0 ? "even" : "odd");  // 根据索引设置偶数或奇数类
             // 创建各个单元格（td）
@@ -162,6 +164,7 @@ mirror.update = function update() {
             tr.append(td1, td2, td3, td4, td5, td6);
 
             $("#distro-table tbody").append(tr);
+            
             // 根据job.name更新对应的单元格
             var updateClass = "." + job.name + ".update-time";
             var upstreamClass = "." + job.name + ".upstream";
@@ -171,7 +174,7 @@ mirror.update = function update() {
             $(upstreamClass).html(job.upstream);
             $(statusClass).html(statusMap.get(job.status));
             $(sizeClass).html(job.size);
-        }
+        });
     });
 }
 
