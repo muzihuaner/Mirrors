@@ -5,7 +5,14 @@
 body{
     font-family:"Bitstream Vera Sans","Lucida Grande", Verdana, Lucida, sans-serif;
     font-size: .9em;
-    margin: 0px 20px;
+    margin: 0;
+    overflow: hidden;
+}
+.main {
+    margin: 0 auto;
+    width: 1000px;
+    padding: 20px;
+    overflow: hidden;
 }
 tr.even {
     background:#EEE;
@@ -66,14 +73,27 @@ h1, h3 {
     display: none;
 }
 #footer {
+    position: absolute;
+    bottom: 0;
     text-align: center;
-    margin-bottom: 10px;
     clear: both;
+    color: #dee2e6;
+    width: 100%;
+    padding-top: 60px;
+    padding-bottom: 60px;
+    background: #384452;
 }
 #footer a {
-    color: #555;
+    color: #ffffff;
     margin: 0px 10px;
-    font-size: 0.9em;
+    font-size: 1rem;
+}
+#footer ul{
+    list-style-type: none;
+}
+#footer li {
+    display: inline-block;  /* 或者使用 inline-flex */
+    margin-right: 1px;  /* 设置列表项之间的间距 */
 }
 pre {
     font-family: monospace;
@@ -99,4 +119,3 @@ p.answer {
     margin: 0px 10px;
     font-size: 0.8em;
 }
-
