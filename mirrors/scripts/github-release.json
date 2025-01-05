@@ -7,5 +7,7 @@
     "localsend/localsend",
     "git-for-windows/git",
     "obsproject/obs-studio",
-    "pbatard/rufus"
+    "pbatard/rufus",
+    "M2Team/NanaZip",
+    "rclone/rclone"
 ]
